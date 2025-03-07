@@ -1,3 +1,9 @@
+import { ReactNode, useCallback, useEffect } from 'react';
+import { Provider } from 'react-redux';
+import { BrowserRouter, Route, Routes, useNavigate } from 'react-router-dom';
+import '../../index.css';
+import styles from './app.module.css';
+
 import {
   ConstructorPage,
   Feed,
@@ -9,9 +15,6 @@ import {
   Register,
   ResetPassword
 } from '@pages';
-import { useEffect } from 'react';
-import '../../index.css';
-import styles from './app.module.css';
 
 import {
   AppHeader,
@@ -20,32 +23,58 @@ import {
   OrderInfo,
   ProtectedRoute
 } from '@components';
-import { Provider } from 'react-redux';
-import { BrowserRouter, Route, Routes, useNavigate } from 'react-router-dom';
-import { fetchIngredients } from '../../store/slices/dataSlice';
+
 import { fetchFeed } from '../../store/slices/feedSlice';
+import { fetchIngredients } from '../../store/slices/ingredientsSlice';
 import { closeOrderModal } from '../../store/slices/orderSlice';
 import { fetchUser } from '../../store/slices/userSlice';
 import store, { useAppDispatch, useAppSelector } from '../../store/store';
 
-const AppContent = () => {
+// Инициализация данных при загрузке приложения
+const useInitializeApp = () => {
   const dispatch = useAppDispatch();
-  const navigate = useNavigate();
-
-  const number = useAppSelector((state) => state.order.orderModalData?.number);
-
   useEffect(() => {
     dispatch(fetchIngredients());
     dispatch(fetchUser());
     dispatch(fetchFeed());
   }, [dispatch]);
+};
+
+// Компонент для модального окна
+interface ModalRouteProps {
+  element: ReactNode;
+  title: string;
+  closePath: string;
+}
+
+const ModalWrapper = ({ element, title, closePath }: ModalRouteProps) => {
+  const dispatch = useAppDispatch();
+  const navigate = useNavigate();
+  const number = useAppSelector((state) => state.order.orderModalData?.number);
+
+  const handleClose = useCallback(() => {
+    dispatch(closeOrderModal());
+    navigate(closePath);
+  }, [dispatch, navigate, closePath]);
+
+  return (
+    <Modal
+      title={`${title}${number ? ` #${number}` : ''}`}
+      onClose={handleClose}
+    >
+      {element}
+    </Modal>
+  );
+};
+
+const AppContent = () => {
+  useInitializeApp();
 
   return (
     <div className={styles.app}>
       <AppHeader />
       <Routes>
-        <Route path='/' element={<ConstructorPage />} />
-        <Route path='/feed' element={<Feed />} />
+        {/* 1. Страницы аутентификации */}
         <Route
           path='/login'
           element={
@@ -59,14 +88,6 @@ const AppContent = () => {
           element={
             <ProtectedRoute onlyUnAuth>
               <Register />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path='/profile/orders'
-          element={
-            <ProtectedRoute>
-              <ProfileOrders />
             </ProtectedRoute>
           }
         />
@@ -86,7 +107,12 @@ const AppContent = () => {
             </ProtectedRoute>
           }
         />
-        <Route path='/reset-password' element={<ResetPassword />} />
+
+        {/* 2. Основные страницы */}
+        <Route path='/' element={<ConstructorPage />} />
+        <Route path='/feed' element={<Feed />} />
+
+        {/* 3. Профиль и заказы */}
         <Route
           path='/profile'
           element={
@@ -96,43 +122,49 @@ const AppContent = () => {
           }
         />
         <Route
+          path='/profile/orders'
+          element={
+            <ProtectedRoute>
+              <ProfileOrders />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* 4. Модальные окна */}
+        <Route
           path='/ingredients/:id'
           element={
-            <Modal title='Детали ингредиента' onClose={() => navigate('/')}>
-              <IngredientDetails />
-            </Modal>
+            <ModalWrapper
+              element={<IngredientDetails />}
+              title='Детали ингредиента'
+              closePath='/'
+            />
           }
         />
         <Route
           path='/feed/:number'
           element={
-            <Modal
-              title={`Заказ #${number ?? ''}`}
-              onClose={() => {
-                dispatch(closeOrderModal());
-                navigate('/feed');
-              }}
-            >
-              <OrderInfo />
-            </Modal>
+            <ModalWrapper
+              element={<OrderInfo />}
+              title='Заказ'
+              closePath='/feed'
+            />
           }
         />
         <Route
           path='/profile/orders/:number'
           element={
             <ProtectedRoute>
-              <Modal
-                title={`Заказ #${number ?? ''}`}
-                onClose={() => {
-                  dispatch(closeOrderModal());
-                  navigate('/profile/orders');
-                }}
-              >
-                <OrderInfo />
-              </Modal>
+              <ModalWrapper
+                element={<OrderInfo />}
+                title='Заказ'
+                closePath='/profile/orders'
+              />
             </ProtectedRoute>
           }
         />
+
+        {/* 5. 404 Страница */}
         <Route path='*' element={<NotFound404 />} />
       </Routes>
     </div>

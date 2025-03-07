@@ -13,9 +13,9 @@ export const BurgerIngredient: FC<TBurgerIngredientProps> = memo(
 
     const handleAdd = () => {
       if (ingredient.type === 'bun') {
-        dispatch(setBun(ingredient)); // Если булка → заменяем текущую
+        dispatch(setBun(ingredient));
       } else {
-        dispatch(addIngredient(ingredient)); // Если обычный ингредиент → добавляем в массив
+        dispatch(addIngredient(ingredient));
       }
     };
 

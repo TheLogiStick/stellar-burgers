@@ -7,13 +7,15 @@ type ConstructorState = {
   ingredients: TConstructorIngredient[];
   orderRequest: boolean;
   orderModalData: any | null;
+  status: 'idle' | 'loading' | 'succeeded' | 'failed';
 };
 
 const initialState: ConstructorState = {
   bun: null,
   ingredients: [],
   orderRequest: false,
-  orderModalData: null
+  orderModalData: null,
+  status: 'idle'
 };
 
 export const fetchOrder = createAsyncThunk(
@@ -62,15 +64,18 @@ const orderSlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(fetchOrder.pending, (state) => {
+        state.status = 'loading';
         state.orderRequest = true;
       })
       .addCase(fetchOrder.fulfilled, (state, action) => {
+        state.status = 'succeeded';
         state.orderRequest = false;
         state.orderModalData = action.payload;
         state.ingredients = [];
         state.bun = null;
       })
       .addCase(fetchOrder.rejected, (state) => {
+        state.status = 'failed';
         state.orderRequest = false;
       });
   }

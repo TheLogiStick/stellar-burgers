@@ -7,7 +7,6 @@ import { useAppDispatch } from '../../store/store';
 export const ProfileMenu: FC = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
-
   const { pathname } = useLocation();
 
   const handleLogout = async () => {

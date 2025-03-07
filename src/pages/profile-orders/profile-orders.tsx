@@ -4,13 +4,14 @@ import { getOrders } from '../../store/slices/userSlice';
 import { useAppDispatch, useAppSelector } from '../../store/store';
 
 export const ProfileOrders: FC = () => {
-  /** TODO: взять переменную из стора */
   const dispatch = useAppDispatch();
-  const { orders } = useAppSelector((state) => state.user);
-  // const orders: TOrder[] = [];
+  const orders = useAppSelector((state) => state.user.orders);
+
   useEffect(() => {
-    dispatch(getOrders());
-  }, [dispatch]);
+    if (!orders?.length) {
+      dispatch(getOrders());
+    }
+  }, [dispatch, orders]);
 
   return <ProfileOrdersUI orders={orders ?? []} />;
 };

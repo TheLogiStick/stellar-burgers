@@ -10,9 +10,7 @@ export const Register: FC = () => {
   const [password, setPassword] = useState('');
 
   const dispatch = useAppDispatch();
-  const { isAuthenticated, error, loginUserRequest } = useAppSelector(
-    (state) => state.user
-  );
+  const { isAuthenticated, error } = useAppSelector((state) => state.user);
 
   const handleSubmit = (e: SyntheticEvent) => {
     e.preventDefault();
@@ -24,17 +22,17 @@ export const Register: FC = () => {
     dispatch(registerUser({ name: userName, email, password }));
   };
 
-  if (isAuthenticated) return <Navigate to={'/'} />;
+  if (isAuthenticated) return <Navigate to='/' />;
 
   return (
     <RegisterUI
       errorText={error || ''}
-      email={email}
       userName={userName}
+      email={email}
       password={password}
+      setUserName={setUserName}
       setEmail={setEmail}
       setPassword={setPassword}
-      setUserName={setUserName}
       handleSubmit={handleSubmit}
     />
   );

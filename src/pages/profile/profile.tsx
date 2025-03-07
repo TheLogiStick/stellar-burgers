@@ -4,53 +4,44 @@ import { updateUserDetails } from '../../store/slices/userSlice';
 import { useAppDispatch, useAppSelector } from '../../store/store';
 
 export const Profile: FC = () => {
-  /** TODO: взять переменную из стора */
   const dispatch = useAppDispatch();
-  const { user } = useAppSelector((state) => state.user) || {};
+  const user = useAppSelector((state) => state.user.user);
 
-  const [formValue, setFormValue] = useState({
+  const initialFormState = {
     name: user?.name || '',
     email: user?.email || '',
     password: ''
-  });
+  };
+
+  const [formValue, setFormValue] = useState(initialFormState);
 
   useEffect(() => {
-    setFormValue((prevState) => ({
-      ...prevState,
-      name: user?.name || '',
-      email: user?.email || ''
-    }));
+    setFormValue(initialFormState);
   }, [user]);
 
   const isFormChanged =
-    formValue.name !== (user?.name || '') ||
-    formValue.email !== (user?.email || '') ||
+    JSON.stringify({ name: formValue.name, email: formValue.email }) !==
+      JSON.stringify({ name: user?.name || '', email: user?.email || '' }) ||
     !!formValue.password;
 
   const handleSubmit = (e: SyntheticEvent) => {
     e.preventDefault();
-    if (isFormChanged) dispatch(updateUserDetails(formValue));
-    if (formValue.password)
-      setFormValue((prevState) => ({
-        ...prevState,
-        password: ''
-      }));
+    if (!isFormChanged) return;
+
+    dispatch(updateUserDetails(formValue));
+    if (formValue.password) {
+      setFormValue((prev) => ({ ...prev, password: '' }));
+    }
   };
 
   const handleCancel = (e: SyntheticEvent) => {
     e.preventDefault();
-    setFormValue({
-      name: user?.name || '',
-      email: user?.email || '',
-      password: ''
-    });
+    setFormValue(initialFormState);
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormValue((prevState) => ({
-      ...prevState,
-      [e.target.name]: e.target.value
-    }));
+    const { name, value } = e.target;
+    setFormValue((prev) => ({ ...prev, [name]: value }));
   };
 
   return (

@@ -7,10 +7,8 @@ import { Preloader } from '../ui/preloader';
 export const IngredientDetails: FC = () => {
   const { id } = useParams();
   const ingredientData = useAppSelector((state) =>
-    state.data.ingredients.find((item) => item._id === id)
+    state.ingredients.ingredients.find((item) => item._id === id)
   );
-  /** TODO: взять переменную из стора */
-  // const ingredientData = null;
 
   if (!ingredientData) {
     return <Preloader />;

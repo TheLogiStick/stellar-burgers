@@ -13,17 +13,24 @@ interface DataState {
 
 const initialState: DataState = {
   orders: [],
-  status: 'idle', // 'idle' | 'loading' | 'succeeded' | 'failed'
+  status: 'idle',
   isFeedLoading: false,
   error: null,
   total: null,
   totalToday: null
 };
 
-export const fetchFeed = createAsyncThunk('feed/fetchFeed', async () => {
-  const feed = await getFeedsApi();
-  return feed;
-});
+export const fetchFeed = createAsyncThunk(
+  'feed/fetchFeed',
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await getFeedsApi();
+      return response;
+    } catch (error) {
+      return rejectWithValue(error);
+    }
+  }
+);
 
 const feedSlice = createSlice({
   name: 'feed',
@@ -36,6 +43,7 @@ const feedSlice = createSlice({
         state.isFeedLoading = true;
       })
       .addCase(fetchFeed.fulfilled, (state, action) => {
+        state.status = 'succeeded';
         state.orders = action.payload.orders;
         state.total = action.payload.total;
         state.totalToday = action.payload.totalToday;

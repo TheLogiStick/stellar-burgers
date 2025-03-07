@@ -1,11 +1,9 @@
 import {
-  forgotPasswordApi,
   getOrdersApi,
   getUserApi,
   loginUserApi,
   logoutApi,
   registerUserApi,
-  resetPasswordApi,
   TLoginData,
   TRegisterData,
   updateUserApi
@@ -37,7 +35,6 @@ export const registerUser = createAsyncThunk(
   async (userData: TRegisterData, { rejectWithValue }) => {
     try {
       const response = await registerUserApi(userData);
-      console.log(response);
       localStorage.setItem('refreshToken', response.refreshToken);
       setCookie('accessToken', response.accessToken);
       return response.user;
@@ -92,31 +89,6 @@ export const updateUserDetails = createAsyncThunk(
     try {
       const response = await updateUserApi(userData);
       return response.user;
-    } catch (error: any) {
-      return rejectWithValue(error.message);
-    }
-  }
-);
-
-export const forgotPassword = createAsyncThunk(
-  'user/forgotPassword',
-  async (email: string, { rejectWithValue }) => {
-    try {
-      await forgotPasswordApi({ email });
-    } catch (error: any) {
-      return rejectWithValue(error.message);
-    }
-  }
-);
-
-export const resetPassword = createAsyncThunk(
-  'user/resetPassword',
-  async (
-    { password, token }: { password: string; token: string },
-    { rejectWithValue }
-  ) => {
-    try {
-      await resetPasswordApi({ password, token });
     } catch (error: any) {
       return rejectWithValue(error.message);
     }
@@ -200,7 +172,7 @@ const userSlice = createSlice({
       })
       .addCase(fetchUser.rejected, (state, action) => {
         state.error = action.payload as string;
-        state.isAuthChecked = true; // ✅ Исправляет бесконечный Preloader
+        state.isAuthChecked = true;
       })
 
       // Обновление пользователя
@@ -212,28 +184,6 @@ const userSlice = createSlice({
         state.error = null;
       })
       .addCase(updateUserDetails.rejected, (state, action) => {
-        state.error = action.payload as string;
-      })
-
-      // Восстановление пароля
-      .addCase(forgotPassword.pending, (state) => {
-        state.error = null;
-      })
-      .addCase(forgotPassword.fulfilled, (state) => {
-        state.error = null;
-      })
-      .addCase(forgotPassword.rejected, (state, action) => {
-        state.error = action.payload as string;
-      })
-
-      // Сброс пароля
-      .addCase(resetPassword.pending, (state) => {
-        state.error = null;
-      })
-      .addCase(resetPassword.fulfilled, (state) => {
-        state.error = null;
-      })
-      .addCase(resetPassword.rejected, (state, action) => {
         state.error = action.payload as string;
       })
 

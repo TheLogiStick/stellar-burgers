@@ -2,30 +2,32 @@ import { getIngredientsApi } from '@api';
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { TIngredient } from '@utils-types';
 
-interface DataState {
+interface ingredientsSliceState {
   ingredients: TIngredient[];
   status: 'idle' | 'loading' | 'succeeded' | 'failed';
   isIngredientsLoading: boolean;
-  error: undefined | null | string;
 }
 
-const initialState: DataState = {
+const initialState: ingredientsSliceState = {
   ingredients: [],
-  status: 'idle', // 'idle' | 'loading' | 'succeeded' | 'failed'
-  isIngredientsLoading: false,
-  error: null
+  status: 'idle',
+  isIngredientsLoading: false
 };
 
 export const fetchIngredients = createAsyncThunk(
-  'data/fetchIngredients',
-  async (): Promise<TIngredient[]> => {
-    const ingredients = await getIngredientsApi();
-    return ingredients;
+  'ingredients/fetchIngredients',
+  async (_, { rejectWithValue }) => {
+    try {
+      const ingredients = await getIngredientsApi();
+      return ingredients;
+    } catch (error) {
+      return rejectWithValue(error);
+    }
   }
 );
 
-const dataSlice = createSlice({
-  name: 'data',
+const ingredientsSlice = createSlice({
+  name: 'ingredients',
   initialState,
   reducers: {},
   extraReducers: (builder) => {
@@ -41,10 +43,9 @@ const dataSlice = createSlice({
       })
       .addCase(fetchIngredients.rejected, (state, action) => {
         state.status = 'failed';
-        state.error = action.error.message;
         state.isIngredientsLoading = false;
       });
   }
 });
 
-export default dataSlice.reducer;
+export default ingredientsSlice.reducer;

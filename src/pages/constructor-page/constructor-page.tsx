@@ -6,8 +6,7 @@ import { Preloader } from '../../components/ui';
 import { useAppSelector } from '../../store/store';
 
 export const ConstructorPage: FC = () => {
-  /** TODO: взять переменную из стора */
-  const { isIngredientsLoading } = useAppSelector((state) => state.data);
+  const { isIngredientsLoading } = useAppSelector((state) => state.ingredients);
 
   return (
     <>
