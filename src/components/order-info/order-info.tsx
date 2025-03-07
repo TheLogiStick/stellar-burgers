@@ -1,21 +1,37 @@
-import { FC, useMemo } from 'react';
-import { Preloader } from '../ui/preloader';
-import { OrderInfoUI } from '../ui/order-info';
 import { TIngredient } from '@utils-types';
+import { FC, useEffect, useMemo } from 'react';
+import { useParams } from 'react-router-dom';
+import { openModalOrder } from '../../store/slices/orderSlice';
+import { useAppDispatch, useAppSelector } from '../../store/store';
+import { OrderInfoUI } from '../ui/order-info';
+import { Preloader } from '../ui/preloader';
 
 export const OrderInfo: FC = () => {
-  /** TODO: взять переменные orderData и ingredients из стора */
-  const orderData = {
-    createdAt: '',
-    ingredients: [],
-    _id: '',
-    status: '',
-    name: '',
-    updatedAt: 'string',
-    number: 0
-  };
+  const { number } = useParams();
 
-  const ingredients: TIngredient[] = [];
+  const dispatch = useAppDispatch();
+  const { ingredients, feedOrders } = useAppSelector((state) => ({
+    ingredients: state.data.ingredients,
+    feedOrders: state.feed.orders
+  }));
+
+  const orderData = feedOrders.find((item) => item.number === Number(number));
+
+  useEffect(() => {
+    if (orderData) dispatch(openModalOrder(orderData));
+  }, [dispatch, orderData]);
+  /** TODO: взять переменные orderData и ingredients из стора */
+  // const orderData = {
+  //   createdAt: '',
+  //   ingredients: [],
+  //   _id: '',
+  //   status: '',
+  //   name: '',
+  //   updatedAt: 'string',
+  //   number: 0
+  // };
+
+  // const ingredients: TIngredient[] = [];
 
   /* Готовим данные для отображения */
   const orderInfo = useMemo(() => {
