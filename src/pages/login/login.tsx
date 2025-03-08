@@ -1,5 +1,5 @@
 import { LoginUI } from '@ui-pages';
-import { FC, SyntheticEvent, useCallback, useState } from 'react';
+import { FC, SyntheticEvent, useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { loginUser } from '../../store/slices/userSlice';
 import { useAppDispatch, useAppSelector } from '../../store/store';
@@ -11,17 +11,12 @@ export const Login: FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  const handleSubmit = useCallback(
-    (e: SyntheticEvent) => {
-      e.preventDefault();
-      dispatch(loginUser({ email, password }));
-    },
-    [dispatch, email, password]
-  );
+  const handleSubmit = (e: SyntheticEvent) => {
+    e.preventDefault();
+    dispatch(loginUser({ email, password }));
+  };
 
-  if (isAuthenticated) {
-    return <Navigate to='/' />;
-  }
+  if (isAuthenticated) return <Navigate to='/' />;
 
   return (
     <LoginUI

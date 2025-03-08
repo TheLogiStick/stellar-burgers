@@ -1,32 +1,31 @@
 import { orderBurgerApi } from '@api';
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { TConstructorIngredient } from '@utils-types';
+import { v4 as uuidv4 } from 'uuid';
 
-type ConstructorState = {
+interface OrderState {
   bun: TConstructorIngredient | null;
   ingredients: TConstructorIngredient[];
-  orderRequest: boolean;
-  orderModalData: any | null;
   status: 'idle' | 'loading' | 'succeeded' | 'failed';
-};
+  isLoading: boolean;
+  orderModalData: any | null;
+  error: string | null;
+}
 
-const initialState: ConstructorState = {
+const initialState: OrderState = {
   bun: null,
   ingredients: [],
-  orderRequest: false,
+  status: 'idle',
+  isLoading: false,
   orderModalData: null,
-  status: 'idle'
+  error: null
 };
 
 export const fetchOrder = createAsyncThunk(
   'order/fetchOrder',
-  async (ingredientIds: string[], { rejectWithValue }) => {
-    try {
-      const response = await orderBurgerApi(ingredientIds);
-      return response.order;
-    } catch (error) {
-      return rejectWithValue(error);
-    }
+  async (ingredientIds: string[]) => {
+    const response = await orderBurgerApi(ingredientIds);
+    return response.order;
   }
 );
 
@@ -38,7 +37,10 @@ const orderSlice = createSlice({
       state.bun = action.payload;
     },
     addIngredient: (state, action) => {
-      state.ingredients.push(action.payload);
+      state.ingredients.push({
+        ...action.payload,
+        uniqueId: uuidv4()
+      });
     },
     removeIngredient: (state, action) => {
       state.ingredients.splice(action.payload, 1);
@@ -65,18 +67,19 @@ const orderSlice = createSlice({
     builder
       .addCase(fetchOrder.pending, (state) => {
         state.status = 'loading';
-        state.orderRequest = true;
+        state.isLoading = true;
       })
       .addCase(fetchOrder.fulfilled, (state, action) => {
         state.status = 'succeeded';
-        state.orderRequest = false;
+        state.isLoading = false;
         state.orderModalData = action.payload;
         state.ingredients = [];
         state.bun = null;
       })
       .addCase(fetchOrder.rejected, (state) => {
         state.status = 'failed';
-        state.orderRequest = false;
+        state.isLoading = false;
+        state.error = 'Failed to create order';
       });
   }
 });

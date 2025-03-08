@@ -11,21 +11,19 @@ export const BurgerConstructorElement: FC<BurgerConstructorElementProps> = memo(
   ({ ingredient, index, totalItems }) => {
     const dispatch = useAppDispatch();
 
-    const handleMove = (direction: 'up' | 'down') => {
-      dispatch(moveIngredient({ index, direction }));
-    };
-
-    const handleClose = () => {
-      dispatch(removeIngredient(index));
-    };
+    const handleMoveUp = () =>
+      dispatch(moveIngredient({ index, direction: 'up' }));
+    const handleMoveDown = () =>
+      dispatch(moveIngredient({ index, direction: 'down' }));
+    const handleClose = () => dispatch(removeIngredient(index));
 
     return (
       <BurgerConstructorElementUI
         ingredient={ingredient}
         index={index}
         totalItems={totalItems}
-        handleMoveUp={() => handleMove('up')}
-        handleMoveDown={() => handleMove('down')}
+        handleMoveUp={handleMoveUp}
+        handleMoveDown={handleMoveDown}
         handleClose={handleClose}
       />
     );

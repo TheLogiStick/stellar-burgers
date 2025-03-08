@@ -10,9 +10,12 @@ import { useAppDispatch, useAppSelector } from '../../store/store';
 export const BurgerConstructor: FC = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
-  const { bun, ingredients, orderRequest, orderModalData } = useAppSelector(
-    (state) => state.order
-  );
+  const {
+    bun,
+    ingredients,
+    isLoading: orderRequest,
+    orderModalData
+  } = useAppSelector((state) => state.order);
   const { isAuthenticated } = useAppSelector((state) => state.user);
 
   const onOrderClick = async () => {

@@ -11,13 +11,12 @@ export const BurgerIngredient: FC<TBurgerIngredientProps> = memo(
     const dispatch = useAppDispatch();
     const location = useLocation();
 
-    const handleAdd = () => {
-      if (ingredient.type === 'bun') {
-        dispatch(setBun(ingredient));
-      } else {
-        dispatch(addIngredient(ingredient));
-      }
-    };
+    const handleAdd = () =>
+      dispatch(
+        ingredient.type === 'bun'
+          ? setBun(ingredient)
+          : addIngredient(ingredient)
+      );
 
     return (
       <BurgerIngredientUI

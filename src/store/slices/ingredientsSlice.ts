@@ -2,27 +2,25 @@ import { getIngredientsApi } from '@api';
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { TIngredient } from '@utils-types';
 
-interface ingredientsSliceState {
+interface IngredientsState {
   ingredients: TIngredient[];
   status: 'idle' | 'loading' | 'succeeded' | 'failed';
-  isIngredientsLoading: boolean;
+  isLoading: boolean;
+  error: string | null;
 }
 
-const initialState: ingredientsSliceState = {
+const initialState: IngredientsState = {
   ingredients: [],
   status: 'idle',
-  isIngredientsLoading: false
+  isLoading: false,
+  error: null
 };
 
 export const fetchIngredients = createAsyncThunk(
   'ingredients/fetchIngredients',
-  async (_, { rejectWithValue }) => {
-    try {
-      const ingredients = await getIngredientsApi();
-      return ingredients;
-    } catch (error) {
-      return rejectWithValue(error);
-    }
+  async () => {
+    const ingredients = await getIngredientsApi();
+    return ingredients;
   }
 );
 
@@ -34,16 +32,17 @@ const ingredientsSlice = createSlice({
     builder
       .addCase(fetchIngredients.pending, (state) => {
         state.status = 'loading';
-        state.isIngredientsLoading = true;
+        state.isLoading = true;
       })
       .addCase(fetchIngredients.fulfilled, (state, action) => {
         state.status = 'succeeded';
         state.ingredients = action.payload;
-        state.isIngredientsLoading = false;
+        state.isLoading = false;
       })
       .addCase(fetchIngredients.rejected, (state, action) => {
         state.status = 'failed';
-        state.isIngredientsLoading = false;
+        state.isLoading = false;
+        state.error = action.error.message || null;
       });
   }
 });

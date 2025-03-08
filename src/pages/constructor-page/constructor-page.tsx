@@ -6,11 +6,11 @@ import { Preloader } from '../../components/ui';
 import { useAppSelector } from '../../store/store';
 
 export const ConstructorPage: FC = () => {
-  const { isIngredientsLoading } = useAppSelector((state) => state.ingredients);
+  const { isLoading } = useAppSelector((state) => state.ingredients);
 
   return (
     <>
-      {isIngredientsLoading ? (
+      {isLoading ? (
         <Preloader />
       ) : (
         <main className={styles.containerMain}>

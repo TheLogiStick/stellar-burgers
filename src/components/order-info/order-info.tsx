@@ -1,7 +1,7 @@
 import { TIngredient } from '@utils-types';
 import { FC, useEffect, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
-import { openModalOrder } from '../../store/slices/orderSlice';
+import { fetchFeed } from '../../store/slices/feedSlice';
 import { useAppDispatch, useAppSelector } from '../../store/store';
 import { OrderInfoUI } from '../ui/order-info';
 import { Preloader } from '../ui/preloader';
@@ -10,10 +10,8 @@ export const OrderInfo: FC = () => {
   const { number } = useParams();
   const dispatch = useAppDispatch();
 
-  const { ingredients, feedOrders } = useAppSelector((state) => ({
-    ingredients: state.ingredients.ingredients,
-    feedOrders: state.feed.orders
-  }));
+  const ingredients = useAppSelector((state) => state.ingredients.ingredients);
+  const feedOrders = useAppSelector((state) => state.feed.orders);
 
   const orderData = useMemo(
     () => feedOrders.find((item) => item.number === Number(number)),
@@ -21,10 +19,10 @@ export const OrderInfo: FC = () => {
   );
 
   useEffect(() => {
-    if (orderData) {
-      dispatch(openModalOrder(orderData));
+    if (!feedOrders?.length) {
+      dispatch(fetchFeed());
     }
-  }, [orderData, dispatch]);
+  }, [dispatch]);
 
   const orderInfo = useMemo(() => {
     if (!orderData || ingredients.length === 0) return null;

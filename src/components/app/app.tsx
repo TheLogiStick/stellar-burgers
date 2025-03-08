@@ -1,6 +1,12 @@
 import { ReactNode, useCallback, useEffect } from 'react';
 import { Provider } from 'react-redux';
-import { BrowserRouter, Route, Routes, useNavigate } from 'react-router-dom';
+import {
+  BrowserRouter,
+  Route,
+  Routes,
+  useLocation,
+  useNavigate
+} from 'react-router-dom';
 import '../../index.css';
 import styles from './app.module.css';
 
@@ -24,7 +30,6 @@ import {
   ProtectedRoute
 } from '@components';
 
-import { fetchFeed } from '../../store/slices/feedSlice';
 import { fetchIngredients } from '../../store/slices/ingredientsSlice';
 import { closeOrderModal } from '../../store/slices/orderSlice';
 import { fetchUser } from '../../store/slices/userSlice';
@@ -36,7 +41,6 @@ const useInitializeApp = () => {
   useEffect(() => {
     dispatch(fetchIngredients());
     dispatch(fetchUser());
-    dispatch(fetchFeed());
   }, [dispatch]);
 };
 
@@ -69,11 +73,13 @@ const ModalWrapper = ({ element, title, closePath }: ModalRouteProps) => {
 
 const AppContent = () => {
   useInitializeApp();
+  const location = useLocation();
+  const background = location.state && location.state.background;
 
   return (
     <div className={styles.app}>
       <AppHeader />
-      <Routes>
+      <Routes location={background || location}>
         {/* 1. Страницы аутентификации */}
         <Route
           path='/login'
@@ -107,11 +113,9 @@ const AppContent = () => {
             </ProtectedRoute>
           }
         />
-
         {/* 2. Основные страницы */}
         <Route path='/' element={<ConstructorPage />} />
         <Route path='/feed' element={<Feed />} />
-
         {/* 3. Профиль и заказы */}
         <Route
           path='/profile'
@@ -129,44 +133,57 @@ const AppContent = () => {
             </ProtectedRoute>
           }
         />
-
-        {/* 4. Модальные окна */}
-        <Route
-          path='/ingredients/:id'
-          element={
-            <ModalWrapper
-              element={<IngredientDetails />}
-              title='Детали ингредиента'
-              closePath='/'
-            />
-          }
-        />
-        <Route
-          path='/feed/:number'
-          element={
-            <ModalWrapper
-              element={<OrderInfo />}
-              title='Заказ'
-              closePath='/feed'
-            />
-          }
-        />
+        {/* 4. Детальная информация */}
+        <Route path='/ingredients/:id' element={<IngredientDetails />} />
+        <Route path='/feed/:number' element={<OrderInfo />} />
         <Route
           path='/profile/orders/:number'
           element={
             <ProtectedRoute>
-              <ModalWrapper
-                element={<OrderInfo />}
-                title='Заказ'
-                closePath='/profile/orders'
-              />
+              <OrderInfo />
             </ProtectedRoute>
           }
         />
-
         {/* 5. 404 Страница */}
         <Route path='*' element={<NotFound404 />} />
       </Routes>
+      {background && (
+        /* 6. Модальные окна */
+        <Routes>
+          <Route
+            path='/ingredients/:id'
+            element={
+              <ModalWrapper
+                element={<IngredientDetails />}
+                title='Детали ингредиента'
+                closePath='/'
+              />
+            }
+          />
+          <Route
+            path='/feed/:number'
+            element={
+              <ModalWrapper
+                element={<OrderInfo />}
+                title='Заказ'
+                closePath='/feed'
+              />
+            }
+          />
+          <Route
+            path='/profile/orders/:number'
+            element={
+              <ProtectedRoute>
+                <ModalWrapper
+                  element={<OrderInfo />}
+                  title='Заказ'
+                  closePath='/profile/orders'
+                />
+              </ProtectedRoute>
+            }
+          />
+        </Routes>
+      )}
     </div>
   );
 };
