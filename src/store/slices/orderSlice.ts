@@ -23,10 +23,7 @@ const initialState: OrderState = {
 
 export const fetchOrder = createAsyncThunk(
   'order/fetchOrder',
-  async (ingredientIds: string[]) => {
-    const response = await orderBurgerApi(ingredientIds);
-    return response.order;
-  }
+  (ingredientIds: string[]) => orderBurgerApi(ingredientIds)
 );
 
 const orderSlice = createSlice({
@@ -73,7 +70,7 @@ const orderSlice = createSlice({
       })
       .addCase(fetchOrder.fulfilled, (state, action) => {
         state.status = 'succeeded';
-        state.orderModalData = action.payload;
+        state.orderModalData = action.payload.order;
         state.isLoading = false;
         state.ingredients = [];
         state.bun = null;

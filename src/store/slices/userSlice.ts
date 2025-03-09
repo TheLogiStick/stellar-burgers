@@ -35,20 +35,20 @@ const initialState: UserState = {
 export const registerUser = createAsyncThunk(
   'user/register',
   async (userData: TRegisterData) => {
-    const response = await registerUserApi(userData);
-    localStorage.setItem('refreshToken', response.refreshToken);
-    setCookie('accessToken', response.accessToken);
-    return response.user;
+    const { refreshToken, accessToken, user } = await registerUserApi(userData);
+    localStorage.setItem('refreshToken', refreshToken);
+    setCookie('accessToken', accessToken);
+    return user;
   }
 );
 
 export const loginUser = createAsyncThunk(
   'user/login',
   async (loginData: TLoginData) => {
-    const response = await loginUserApi(loginData);
-    localStorage.setItem('refreshToken', response.refreshToken);
-    setCookie('accessToken', response.accessToken);
-    return response.user;
+    const { refreshToken, accessToken, user } = await loginUserApi(loginData);
+    localStorage.setItem('refreshToken', refreshToken);
+    setCookie('accessToken', accessToken);
+    return user;
   }
 );
 
@@ -58,23 +58,14 @@ export const logoutUser = createAsyncThunk('user/logout', async () => {
   setCookie('accessToken', '', { expires: -1 });
 });
 
-export const fetchUser = createAsyncThunk('user/fetch', async () => {
-  const response = await getUserApi();
-  return response.user;
-});
+export const fetchUser = createAsyncThunk('user/fetch', getUserApi);
 
 export const updateUserDetails = createAsyncThunk(
   'user/update',
-  async (userData: Partial<TRegisterData>) => {
-    const response = await updateUserApi(userData);
-    return response.user;
-  }
+  (userData: Partial<TRegisterData>) => updateUserApi(userData)
 );
 
-export const getOrders = createAsyncThunk('user/getOrders', async () => {
-  const orders = await getOrdersApi();
-  return orders;
-});
+export const getOrders = createAsyncThunk('user/getOrders', getOrdersApi);
 
 const userSlice = createSlice({
   name: 'user',
@@ -143,7 +134,7 @@ const userSlice = createSlice({
         state.error = null;
       })
       .addCase(fetchUser.fulfilled, (state, action) => {
-        state.user = action.payload;
+        state.user = action.payload.user;
         state.isAuthenticated = true;
         state.isAuthChecked = true;
         state.error = null;
@@ -158,7 +149,7 @@ const userSlice = createSlice({
         state.error = null;
       })
       .addCase(updateUserDetails.fulfilled, (state, action) => {
-        state.user = action.payload;
+        state.user = action.payload.user;
         state.error = null;
       })
       .addCase(updateUserDetails.rejected, (state, action) => {
