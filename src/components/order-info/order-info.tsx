@@ -1,7 +1,6 @@
 import { TIngredient } from '@utils-types';
-import { FC, useEffect, useMemo } from 'react';
+import { FC, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
-import { fetchFeed } from '../../store/slices/feedSlice';
 import { useAppDispatch, useAppSelector } from '../../store/store';
 import { OrderInfoUI } from '../ui/order-info';
 import { Preloader } from '../ui/preloader';
@@ -18,11 +17,11 @@ export const OrderInfo: FC = () => {
     [feedOrders, number]
   );
 
-  useEffect(() => {
-    if (!feedOrders?.length) {
-      dispatch(fetchFeed());
-    }
-  }, [dispatch]);
+  // useEffect(() => {
+  //   if (!feedOrders?.length) {
+  //     dispatch(fetchFeed());
+  //   }
+  // }, [dispatch]);
 
   const orderInfo = useMemo(() => {
     if (!orderData || ingredients.length === 0) return null;

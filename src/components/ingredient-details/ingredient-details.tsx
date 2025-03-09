@@ -10,9 +10,7 @@ export const IngredientDetails: FC = () => {
     state.ingredients.ingredients.find((item) => item._id === id)
   );
 
-  if (!ingredientData) {
-    return <Preloader />;
-  }
+  if (!ingredientData) return <Preloader />;
 
   return <IngredientDetailsUI ingredientData={ingredientData} />;
 };

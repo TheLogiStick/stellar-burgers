@@ -2,9 +2,7 @@ import { BurgerConstructorUI } from '@ui';
 import { TConstructorIngredient } from '@utils-types';
 import { FC, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { fetchFeed } from '../../store/slices/feedSlice';
 import { closeOrderModal, fetchOrder } from '../../store/slices/orderSlice';
-import { getOrders } from '../../store/slices/userSlice';
 import { useAppDispatch, useAppSelector } from '../../store/store';
 
 export const BurgerConstructor: FC = () => {
@@ -18,7 +16,7 @@ export const BurgerConstructor: FC = () => {
   } = useAppSelector((state) => state.order);
   const { isAuthenticated } = useAppSelector((state) => state.user);
 
-  const onOrderClick = async () => {
+  const onOrderClick = () => {
     if (!bun || orderRequest) return;
     if (!isAuthenticated) {
       navigate('/login');
@@ -29,9 +27,7 @@ export const BurgerConstructor: FC = () => {
       ...ingredients.map((item) => item._id),
       bun._id
     ];
-    await dispatch(fetchOrder(ingredientIds));
-    dispatch(getOrders());
-    dispatch(fetchFeed());
+    dispatch(fetchOrder(ingredientIds));
   };
 
   const closeOrderModalHandler = () => {
