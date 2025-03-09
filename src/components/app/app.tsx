@@ -1,4 +1,4 @@
-import { ReactNode, useCallback, useEffect } from 'react';
+import { useEffect } from 'react';
 import { Provider } from 'react-redux';
 import {
   BrowserRouter,
@@ -30,10 +30,10 @@ import {
   ProtectedRoute
 } from '@components';
 
+import { fetchFeed } from '../../store/slices/feedSlice';
 import { fetchIngredients } from '../../store/slices/ingredientsSlice';
-import { closeOrderModal } from '../../store/slices/orderSlice';
-import { fetchUser } from '../../store/slices/userSlice';
-import store, { useAppDispatch, useAppSelector } from '../../store/store';
+import { fetchUser, getOrders } from '../../store/slices/userSlice';
+import store, { useAppDispatch } from '../../store/store';
 
 // Инициализация данных при загрузке приложения
 const useInitializeApp = () => {
@@ -44,37 +44,24 @@ const useInitializeApp = () => {
   }, [dispatch]);
 };
 
-// Компонент для модального окна
-interface ModalRouteProps {
-  element: ReactNode;
-  title: string;
-  closePath: string;
-}
-
-const ModalWrapper = ({ element, title, closePath }: ModalRouteProps) => {
-  const dispatch = useAppDispatch();
-  const navigate = useNavigate();
-  const number = useAppSelector((state) => state.order.orderModalData?.number);
-
-  const handleClose = useCallback(() => {
-    dispatch(closeOrderModal());
-    navigate(closePath);
-  }, [dispatch, navigate, closePath]);
-
-  return (
-    <Modal
-      title={`${title}${number ? ` #${number}` : ''}`}
-      onClose={handleClose}
-    >
-      {element}
-    </Modal>
-  );
-};
-
 const AppContent = () => {
   useInitializeApp();
   const location = useLocation();
   const background = location.state && location.state.background;
+  const navigate = useNavigate();
+  const dispatch = useAppDispatch();
+
+  // Запросы данных при переходе на страницу по вставному маршруту
+  useEffect(() => {
+    const path = location.pathname;
+    if (!background) {
+      if (path.startsWith('/feed/')) {
+        dispatch(fetchFeed());
+      } else if (path.startsWith('/profile/orders/')) {
+        dispatch(getOrders());
+      }
+    }
+  }, [background, dispatch]);
 
   return (
     <div className={styles.app}>
@@ -153,32 +140,41 @@ const AppContent = () => {
           <Route
             path='/ingredients/:id'
             element={
-              <ModalWrapper
-                element={<IngredientDetails />}
+              <Modal
                 title='Детали ингредиента'
-                closePath='/'
-              />
+                onClose={() => {
+                  navigate('/');
+                }}
+              >
+                <IngredientDetails />
+              </Modal>
             }
           />
           <Route
             path='/feed/:number'
             element={
-              <ModalWrapper
-                element={<OrderInfo />}
+              <Modal
                 title='Заказ'
-                closePath='/feed'
-              />
+                onClose={() => {
+                  navigate('/feed');
+                }}
+              >
+                <OrderInfo />
+              </Modal>
             }
           />
           <Route
             path='/profile/orders/:number'
             element={
               <ProtectedRoute>
-                <ModalWrapper
-                  element={<OrderInfo />}
+                <Modal
                   title='Заказ'
-                  closePath='/profile/orders'
-                />
+                  onClose={() => {
+                    navigate('/profile/orders');
+                  }}
+                >
+                  <OrderInfo />
+                </Modal>
               </ProtectedRoute>
             }
           />

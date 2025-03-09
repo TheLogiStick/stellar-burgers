@@ -1,27 +1,25 @@
 import { TIngredient } from '@utils-types';
 import { FC, useMemo } from 'react';
-import { useParams } from 'react-router-dom';
-import { useAppDispatch, useAppSelector } from '../../store/store';
+import { useLocation, useParams } from 'react-router-dom';
+import { useAppSelector } from '../../store/store';
 import { OrderInfoUI } from '../ui/order-info';
 import { Preloader } from '../ui/preloader';
 
 export const OrderInfo: FC = () => {
   const { number } = useParams();
-  const dispatch = useAppDispatch();
+  const location = useLocation();
 
   const ingredients = useAppSelector((state) => state.ingredients.ingredients);
   const feedOrders = useAppSelector((state) => state.feed.orders);
+  const userOrders = useAppSelector((state) => state.user.orders);
+
+  const isProfileOrder = location.pathname.includes('/profile');
+  const orders = isProfileOrder ? userOrders : feedOrders;
 
   const orderData = useMemo(
-    () => feedOrders.find((item) => item.number === Number(number)),
-    [feedOrders, number]
+    () => orders?.find((item) => item.number === Number(number)),
+    [orders, number]
   );
-
-  // useEffect(() => {
-  //   if (!feedOrders?.length) {
-  //     dispatch(fetchFeed());
-  //   }
-  // }, [dispatch]);
 
   const orderInfo = useMemo(() => {
     if (!orderData || ingredients.length === 0) return null;

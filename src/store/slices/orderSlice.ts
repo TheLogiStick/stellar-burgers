@@ -1,6 +1,6 @@
 import { orderBurgerApi } from '@api';
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { TConstructorIngredient } from '@utils-types';
+import { TConstructorIngredient, TOrder } from '@utils-types';
 import { v4 as uuidv4 } from 'uuid';
 
 interface OrderState {
@@ -8,7 +8,7 @@ interface OrderState {
   ingredients: TConstructorIngredient[];
   status: 'idle' | 'loading' | 'succeeded' | 'failed';
   isLoading: boolean;
-  orderModalData: any | null;
+  orderModalData: TOrder | null;
   error: string | null;
 }
 
@@ -50,12 +50,6 @@ const orderSlice = createSlice({
     removeIngredient: (state, action) => {
       state.ingredients.splice(action.payload, 1);
     },
-    openModalOrder: (state, action) => {
-      state.orderModalData = action.payload;
-    },
-    closeOrderModal: (state) => {
-      state.orderModalData = null;
-    },
     moveIngredient: (state, action) => {
       const { index, direction } = action.payload;
       const newIndex = direction === 'up' ? index - 1 : index + 1;
@@ -66,6 +60,9 @@ const orderSlice = createSlice({
           state.ingredients[index]
         ];
       }
+    },
+    clearOrderModalData: (state) => {
+      state.orderModalData = null;
     }
   },
   extraReducers: (builder) => {
@@ -76,8 +73,8 @@ const orderSlice = createSlice({
       })
       .addCase(fetchOrder.fulfilled, (state, action) => {
         state.status = 'succeeded';
-        state.isLoading = false;
         state.orderModalData = action.payload;
+        state.isLoading = false;
         state.ingredients = [];
         state.bun = null;
       })
@@ -93,8 +90,7 @@ export const {
   setBun,
   addIngredient,
   removeIngredient,
-  openModalOrder,
-  closeOrderModal,
-  moveIngredient
+  moveIngredient,
+  clearOrderModalData
 } = orderSlice.actions;
 export default orderSlice.reducer;
