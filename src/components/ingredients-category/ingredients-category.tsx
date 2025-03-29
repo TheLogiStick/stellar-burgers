@@ -7,7 +7,7 @@ import { TIngredientsCategoryProps } from './type';
 export const IngredientsCategory = forwardRef<
   HTMLUListElement,
   TIngredientsCategoryProps
->(({ title, titleRef, ingredients }, ref) => {
+>(({ title, titleRef, ingredients, ...rest }, ref) => {
   const { bun, ingredients: selectedIngredients } = useAppSelector(
     (state) => state.order
   );
@@ -34,6 +34,7 @@ export const IngredientsCategory = forwardRef<
       ingredients={ingredients}
       ingredientsCounters={ingredientsCounters}
       ref={ref}
+      {...rest}
     />
   );
 });

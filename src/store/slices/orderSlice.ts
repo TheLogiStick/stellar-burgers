@@ -75,10 +75,10 @@ const orderSlice = createSlice({
         state.ingredients = [];
         state.bun = null;
       })
-      .addCase(fetchOrder.rejected, (state) => {
+      .addCase(fetchOrder.rejected, (state, action) => {
         state.status = 'failed';
         state.isLoading = false;
-        state.error = 'Failed to create order';
+        state.error = action.error.message || null;
       });
   }
 });

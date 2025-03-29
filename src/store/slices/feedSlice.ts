@@ -2,7 +2,7 @@ import { getFeedsApi } from '@api';
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { TOrder } from '@utils-types';
 
-interface FeedState {
+export interface FeedState {
   orders: TOrder[];
   status: 'idle' | 'loading' | 'succeeded' | 'failed';
   isLoading: boolean;

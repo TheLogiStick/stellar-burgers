@@ -1,0 +1,9 @@
+{
+  "success": true,
+  "name": "Бургер",
+  "order": {
+    "_id": "test-order-id",
+    "number": 12345,
+    "status": "done"
+  }
+}
