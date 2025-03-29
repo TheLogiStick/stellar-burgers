@@ -12,7 +12,7 @@ import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { TOrder, TUser } from '@utils-types';
 import { setCookie } from '../../utils/cookie';
 
-interface UserState {
+export interface UserState {
   user: TUser | null;
   orders: TOrder[] | null;
   status: 'idle' | 'loading' | 'succeeded' | 'failed';
@@ -90,7 +90,7 @@ const userSlice = createSlice({
       .addCase(registerUser.rejected, (state, action) => {
         state.status = 'failed';
         state.isLoading = false;
-        state.error = (action.payload as string) || 'Registration failed';
+        state.error = action.error.message || null;
         state.isAuthChecked = true;
       })
 
@@ -111,61 +111,86 @@ const userSlice = createSlice({
       .addCase(loginUser.rejected, (state, action) => {
         state.status = 'failed';
         state.isLoading = false;
-        state.error = (action.payload as string) || 'Login failed';
+        state.error = action.error.message || null;
         state.isAuthChecked = true;
       })
 
       // Выход
       .addCase(logoutUser.pending, (state) => {
+        state.status = 'loading';
+        state.isLoading = true;
         state.error = null;
       })
       .addCase(logoutUser.fulfilled, (state) => {
+        state.status = 'succeeded';
+        state.isLoading = false;
         state.user = null;
         state.isAuthenticated = false;
         state.isAuthChecked = true;
         state.error = null;
       })
       .addCase(logoutUser.rejected, (state, action) => {
-        state.error = action.payload as string;
+        state.status = 'failed';
+        state.isLoading = false;
+        state.error = action.error.message || null;
+        state.isAuthChecked = true;
       })
 
       // Получение пользователя
       .addCase(fetchUser.pending, (state) => {
+        state.status = 'loading';
+        state.isLoading = true;
         state.error = null;
       })
       .addCase(fetchUser.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        state.isLoading = false;
         state.user = action.payload.user;
         state.isAuthenticated = true;
         state.isAuthChecked = true;
         state.error = null;
       })
       .addCase(fetchUser.rejected, (state, action) => {
-        state.error = action.payload as string;
+        state.status = 'failed';
+        state.isLoading = false;
+        state.error = action.error.message || null;
         state.isAuthChecked = true;
       })
 
       // Обновление пользователя
       .addCase(updateUserDetails.pending, (state) => {
+        state.status = 'loading';
+        state.isLoading = true;
         state.error = null;
       })
       .addCase(updateUserDetails.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        state.isLoading = false;
         state.user = action.payload.user;
         state.error = null;
       })
       .addCase(updateUserDetails.rejected, (state, action) => {
-        state.error = action.payload as string;
+        state.status = 'failed';
+        state.isLoading = false;
+        state.error = action.error.message || null;
       })
 
       // Получение заказов пользователя
       .addCase(getOrders.pending, (state) => {
+        state.status = 'loading';
+        state.isLoading = true;
         state.error = null;
       })
       .addCase(getOrders.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        state.isLoading = false;
         state.error = null;
         state.orders = action.payload;
       })
       .addCase(getOrders.rejected, (state, action) => {
-        state.error = action.payload as string;
+        state.status = 'failed';
+        state.isLoading = false;
+        state.error = action.error.message || null;
       });
   }
 });
